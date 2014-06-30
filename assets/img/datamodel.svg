@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="templating-hoplon.svg"
+   sodipodi:docname="datamodel.svg"
    inkscape:export-filename="/Users/danielneal/Development/skills-matter-talk/assets/img/templating-hoplon.png"
    inkscape:export-xdpi="68.32"
    inkscape:export-ydpi="68.32">
@@ -134,13 +134,15 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:0.98000003999999996;fill:#f2f2f2;fill-opacity:1;stroke:none;stroke-width:1.50000000000000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="opacity:0.98000004;fill:#f2f2f2;fill-opacity:1;stroke:none"
        id="rect6506"
-       width="337.14285"
+       width="294.99997"
        height="245"
-       x="127.85714"
+       x="136.42857"
        y="188.07646"
-       ry="0" />
+       ry="0"
+       inkscape:export-xdpi="133.72"
+       inkscape:export-ydpi="133.72" />
     <text
        sodipodi:linespacing="125%"
        id="text4615"
@@ -173,7 +175,7 @@
            height="189.90868"
            x="389.91888"
            y="137.16397" /></flowRegion><flowPara
-         id="flowPara4995"></flowPara></flowRoot>    <rect
+         id="flowPara4995" /></flowRoot>    <rect
        style="opacity:0.98000004;fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:0.46825904;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect5118"
        width="78.501236"
@@ -238,13 +240,13 @@
          y="258.07645"
          style="font-weight:normal;-inkscape-font-specification:Helvetica CY">title</tspan></text>
     <rect
-       style="opacity:0.98000004;fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:0.69372469;stroke-miterlimit:4;stroke-dasharray:none"
+       style="opacity:0.98000004;fill:#f2f2f2;fill-opacity:1;stroke:#000000;stroke-width:0.62804765;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect5154"
        width="92.967049"
-       height="108.9522"
+       height="89.299065"
        x="324.42276"
        y="317.49924"
-       ry="8.8896656" />
+       ry="7.2861199" />
     <text
        xml:space="preserve"
        style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica CY;-inkscape-font-specification:Helvetica CY"
@@ -278,7 +280,7 @@
          y="418.93362"
          x="336.42856"
          sodipodi:role="line"
-         id="tspan6504">vote-time</tspan><tspan
+         id="tspan6504" /><tspan
          style="font-weight:normal;-inkscape-font-specification:Helvetica CY"
          y="446.43362"
          x="336.42856"

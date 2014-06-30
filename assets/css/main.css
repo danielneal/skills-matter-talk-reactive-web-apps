@@ -1,6 +1,46 @@
-.body {
-  font-size:4rem;
+body .bruce {
+  position:absolute;
+  background:white;
+  border-radius:0.5rem;
+  width:13rem;
+  bottom:2rem;
+  left:2rem;
+  opacity:0;
+  display:none;
+  height:4rem;
+  padding:0.2rem;
+  font-family:"Open Sans",sans-serif;
 }
+
+body .bruce img {
+  position:relative;
+  left:0.2rem;
+  top:0.2rem;
+  height:3.5rem;
+  float:left;
+  border-color:#FFFFFF;
+  border-radius:0.4rem;
+}
+
+body .bruce div {
+  position:relative;
+  left:0.9rem;
+  top:0.5rem;
+}
+
+body .bruce p {
+  font-size:1rem;
+  color:black;
+  text-align:left;
+  margin:0.1rem;
+}
+
+body .bruce p.title {
+  font-weight:bold;
+  margin-bottom:0.5rem;
+}
+
+
 
 .reveal section .verse {
   margin:1.5rem;
@@ -11,6 +51,11 @@
   font-weight:bold;
   margin:1.5rem;
   color:white;
+}
+
+.reveal section p.small {
+  float: right;
+  font-size:1.5rem;
 }
 
 .reveal section img {

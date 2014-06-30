@@ -1,11 +1,33 @@
 (page "index.html"
       (:require [reveal.elements :refer [slideshow intro bullet slide highlight two-column-table chapter]]
-                [tailrecursion.hoplon.svg :as svg]))
+                [tailrecursion.hoplon.svg :as svg])
+      (:require-macros [reveal.macros :refer [with-counter]]))
+
+(defc remaining-time (* 60 40))
+
+(defc= mins (int (/ remaining-time 60)))
+
+(defc= seconds (int (- remaining-time (* mins 60))))
+
+(defc= show-bruce (and (#{30 20 15 10 5 4 3 2 1} mins)
+                       (< seconds 15)))
+
+(js/setInterval #(swap! remaining-time dec) 10)
+
+(defmethod do! :animate
+  [elem _ v]
+  (if v
+    (.animate (.show (js/jQuery elem)) (clj->js {:bottom "3rem" :opacity 1}) 600)
+    (.animate (js/jQuery elem) (clj->js {:bottom "2rem" :opacity 0}) 600)))
 
 (html
  (head
   (link :rel "stylesheet" :href "css/main.css"))
  (body
+  (div :class "bruce" :animate (cell= show-bruce)
+       (img :src "img/bruce.png")
+       (div (p :class "title" "Bruce says:")
+            (p (text "~{mins} minutes left"))))
   (slideshow :theme "moon"
              (intro :title "Reactive Web Applications"
                     (h3 "with Hoplon (and Datascript)")
@@ -17,13 +39,14 @@
                           (p "You can use Om, Tom")
                           (p "There's always Enlive, Clive")
                           (p "No need for PHP, Lee")
-                          (p "To serve HTML 5")
+                          (p "To serve HTML 5"))
 
                      (div :class "verse"
                           (p "You can try Quiescent, Brent")
                           (p "Just install Caribou, Lou")
                           (p "There must be"))
-                     (p :class "strong" "50 ways to write a web app")))
+                     (p :class "strong" "50 ways to write a web app in Clojure")
+                     (p :class "small" "-- (with apologies to) Paul Simon"))
 
               (slide (img :src "img/framework.jpg"))
 
@@ -173,7 +196,7 @@
                       )))
              (chapter
               (slide :title "Filter a list"
-                     (let [x (cell ["Alan Turing" "Bruce Durling" "Carl Sagan" "Drew Barrymore" "Edsger Djikstra" "Fyodor Dostoyevsky"])
+                     (let [x (cell ["Pinkie Pie" "Rainbow Dash" "Twilight Sparkle" "Fluttershy" "Applejack" "Rarity"])
                            i (cell "")
                            filtered (cell= (filter #(re-find (js/RegExp. i "i") %) x))]
                        (div :class "filter demo"
@@ -183,7 +206,7 @@
               (slide
                (highlight
                 ;;{{
-                (let [x (cell ["Alan Turing" ... "Fyodor Dostoyevsky"])
+                (let [x (cell ["Pinkie Pie" ... "Rarity"])
                       i (cell "")
                       filtered (cell= (filter #(re-find (js/RegExp. i "i") %) x))]
                   (div
@@ -201,49 +224,51 @@
                      (p :class "strong" "where shall we have dinner?\"")
                      (p  "-- Douglas Adams")))
 
-             (chapter
-              (slide :title "First, some prerequisites")
-              (slide :title "Install build tools"
-                     (ol
-                      (li "Java")
-                      (li "Leiningen")
-                      (li "Boot (http://www.github.com/tailrecursion/boot)"))
-                     (p :class "strong" "and make a new project")
-                     (bullet
+
+              (chapter
+               (slide :title "First, some prerequisites"
+                      (h1 (text "~{slide-number} ~{total-slides}")))
+               (slide :title "Install build tools"
+                      (ol
+                       (li "Java")
+                       (li "Leiningen")
+                       (li "Boot (http://www.github.com/tailrecursion/boot)"))
+                      (p :class "strong" "and make a new project")
+                      (bullet
+                       (highlight
+                        ;;{{
+                        lein new hoplon-castra <name-of-project>
+                        ;;}}
+                        )))
+
+               (slide :title "Add some dependencies"
                       (highlight
                        ;;{{
-                       lein new hoplon-castra <name-of-project>
+                       [com.datomic/datomic-free "0.9.4766"]
+                       [datascript "0.1.5"]
+                       [org.clojure/algo.generic "0.1.0"]
+                       [org.clojure/tools.nrepl "0.2.3"]
                        ;;}}
-                       )))
+                       ))
 
-              (slide :title "Add some dependencies"
-                     (highlight
-                      ;;{{
-                      [com.datomic/datomic-free "0.9.4766"]
-                      [datascript "0.1.5"]
-                      [org.clojure/algo.generic "0.1.0"]
-                      [org.clojure/tools.nrepl "0.2.3"]
-                      ;;}}
-                      ))
+               (slide :title "Add Semantic UI"
+                      (bullet "...because why not?")
+                      (highlight
+                       ;;{{
+                       * Download Semantic UI from http://www.semantic-ui.com
+                       * Copy the contents of the "packaged" folder to the assets directory
+                       * Copy semantic.min.css to hl/semantic/semantic.min.inc.css
+                       * Copy semantic.min.js to hl/semantic/semantic.min.inc.js
+                       (This renaming instructs the Hoplon compiler to include the files)
+                       ;;}}
+                       ))
 
-              (slide :title "Add Semantic UI"
-                     (bullet "...because why not?")
-                     (highlight
-                      ;;{{
-                      * Download Semantic UI from http://www.semantic-ui.com
-                      * Copy the contents of the "packaged" folder to the assets directory
-                      * Copy semantic.min.css to hl/semantic/semantic.min.inc.css
-                      * Copy semantic.min.js to hl/semantic/semantic.min.inc.js
-                      (This renaming instructs the Hoplon compiler to include the files)
-                      ;;}}
-                      ))
-
-              (slide :title "Add a REPL and start up the auto compilation"
-                     (highlight
-                      ;;{{
-                      (deftask repl-light
-                        "Launch nrepl in the project."
-                        []
+               (slide :title "Add a REPL and start up the auto compilation"
+                      (highlight
+                       ;;{{
+                       (deftask repl-light
+                         "Launch nrepl in the project."
+                         []
                         (let [nrepl-server (atom nil)]
                           (fn [continue]
                             (fn [event]
@@ -265,155 +290,153 @@
                       open localhost:8000/index.html
                       ;;}}
                       )
-                     (p :class "strong" "Does it work yet?")))
-
-             (chapter
-              (slide :title "Data and architecture")
-              (slide :title "Server \u21C6 Client relationship"
-                     (img :src "img/architecture.png"))
-
-              (slide :title "Data model"
-                     (img :src "img/datamodel.png"))
-
-              (slide :title "... as a datomic schema"
-                     (highlight
-                      ;;{{
-                      (ns cast.api
-                        (:require [tailrecursion.castra :refer [defrpc]]
-                                  [datomic.api :as d]
-                                  [clojure.algo.generic.functor :refer [fmap]]))
-
-                      (def schema
-                        [{:db/id (d/tempid :db.part/db)
-                          :db/ident :option/title
-                          :db/valueType :db.type/string
-                          :db/cardinality :db.cardinality/one
-                          :db/unique :db.unique/identity
-                          :db/doc "The title of an option"
-                          :db.install/_attribute :db.part/db}
-
-                         {:db/id (d/tempid :db.part/db)
-                          :db/ident :option/description
-                          :db/valueType :db.type/string
-                          :db/cardinality :db.cardinality/one
-                          :db/doc "The description of an option"
-                          :db.install/_attribute :db.part/db}
-
-                         {:db/id (d/tempid :db.part/db)
-                          :db/ident :user/name
-                          :db/unique :db.unique/identity
-                          :db/doc "The name of the user"
-                          :db/valueType :db.type/string
-                          :db/cardinality :db.cardinality/one
-                          :db.install/_attribute :db.part/db}
-
-                         {:db/id (d/tempid :db.part/db)
-                          :db/ident :user/max-votes
-                          :db/doc "The maximum number of votes this user can have"
-                          :db/valueType :db.type/long
-                          :db/cardinality :db.cardinality/one
-                          :db.install/_attribute :db.part/db}
-
-                         {:db/id (d/tempid :db.part/db)
-                          :db/ident :vote/user
-                          :db/valueType :db.type/ref
-                          :db/cardinality :db.cardinality/one
-                          :db/doc "The user casting the vote"
-                          :db.install/_attribute :db.part/db}
-
-                         {:db/id (d/tempid :db.part/db)
-                          :db/ident :vote/option
-                          :db/valueType :db.type/ref
-                          :db/cardinality :db.cardinality/one
-                          :db/doc "The option being voted for"
-                          :db.install/_attribute :db.part/db}])
-                      ;;}}
-                      ))
-
-              (slide :title "Some seed data"
-                     (highlight
-                      ;;{{
-                      (def seed-data
-                        [{:db/id (d/tempid :db.part/user -1)
-                          :option/title "The Fat Duck"
-                          :option/description "Heston Blumenthal's flagship. Might involve eating table service."}
-                         {:db/id (d/tempid :db.part/user -2)
-                          :option/title "Dans le Noir"
-                          :option/description "Dine in the complete darkness. Be accompanied to your seat by blind waiters."}
-                         {:db/id (d/tempid :db.part/user -3)
-                          :option/title "42 degree raw"
-                          :option/description "Featuring food not heated above 42 degrees"}
-                         {:db/id (d/tempid :db.part/user -4)
-                          :option/title "The restaurant at the end of the universe"
-                          :option/description "Meet and dine with a fascinating cross-section of the entire population of space and time."}
-                         {:db/id (d/tempid :db.part/user -5)
-                          :user/name "Arthur Dent"
-                          :user/max-votes 5}
-                         {:db/id (d/tempid :db.part/user -6)
-                          :user/name "Ford Prefect"
-                          :user/max-votes 5}
-                         {:db/id (d/tempid :db.part/user -7)
-                          :user/name "Zaphod Beeblebrox"
-                          :user/max-votes 5}
-                         {:db/id (d/tempid :db.part/user -8)
-                          :user/name "Marvin the Robot"
-                          :user/max-votes 0} ; What would be the point in voting anyway, here I am brain the size of a planet ...
-                         ])
-                      ;;}}
-                      ))
-
-              (slide :title "Drop and create a (test) database"
-                     (highlight
-                      ;;{{
-                      (let [uri "datomic:mem://cast"]
-                        (d/delete-database uri)
-                        (d/create-database uri)
-                        (def conn (d/connect uri))
-                        (d/transact conn schema)
-                        (d/transact conn seed-data))
-                      ;;}}
-                     ))
-
-             (slide :title "What entities do we want a user to see?"
-                    (highlight
-                     ;;{{
-                     (defn visible-entities
-                       "Return all the entities in the database that are relevant to this application"
-                       [db]
-                       (d/q '[:find ?e
-                              :in $ %
-                              :where (visible ?e)]
-                            db
-                            '[[(visible ?u)
-                               [?u :user/name _]]
-                              [(visible ?v)
-                               (?v :vote/option)]
-                              [(visible ?o)
-                               (?o :option/title)]]))
-                     ;;}}
-                     ))
-
-              (slide :title "Loading the entities ready for serialization"
-                     (highlight
-                      ;;{{
-                      (defn load-entity
-                        "Loads an entity and its attributes. Keep in the db/id
-                        and replace references with ids (for use by DataScript)"
-                        [db entity]
-                        (as->
-                         (d/entity db entity) e
-                         (d/touch e)
-                         (into {:db/id (:db/id e)} e) ; needs to be a hash-map, not an entity map
-                         (fmap (fn [v]
-                                 (cond (set? v) (mapv #(if (instance? datomic.query.EntityMap %) (:db/id %) %) v)
-                                       (instance? datomic.query.EntityMap v) (:db/id v)
-                                       :else v)) e)))
-                      ;;}}
-                      )))
-
+                      (p :class "strong" "Does it work yet?")))
               (chapter
-               (slide :title "Meanwhile, on the client")
-               (slide :title "Lay down the style (in advance)"
+               (slide :title "Data and architecture")
+               (slide :title "Server \u21C6 Client relationship"
+                      (img :src "img/architecture.png"))
+
+               (slide :title "Data model"
+                      (img :src "img/datamodel.png"))
+
+               (slide :title "... as a datomic schema"
+                      (highlight
+                       ;;{{
+                       (ns cast.api
+                         (:require [tailrecursion.castra :refer [defrpc]]
+                                   [datomic.api :as d]
+                                   [clojure.algo.generic.functor :refer [fmap]]))
+
+                       (def schema
+                         [{:db/id (d/tempid :db.part/db)
+                           :db/ident :option/title
+                           :db/valueType :db.type/string
+                           :db/cardinality :db.cardinality/one
+                           :db/unique :db.unique/identity
+                           :db/doc "The title of an option"
+                           :db.install/_attribute :db.part/db}
+
+                          {:db/id (d/tempid :db.part/db)
+                           :db/ident :option/description
+                           :db/valueType :db.type/string
+                           :db/cardinality :db.cardinality/one
+                           :db/doc "The description of an option"
+                           :db.install/_attribute :db.part/db}
+
+                          {:db/id (d/tempid :db.part/db)
+                           :db/ident :user/name
+                           :db/unique :db.unique/identity
+                           :db/doc "The name of the user"
+                           :db/valueType :db.type/string
+                           :db/cardinality :db.cardinality/one
+                           :db.install/_attribute :db.part/db}
+
+                          {:db/id (d/tempid :db.part/db)
+                           :db/ident :user/max-votes
+                           :db/doc "The maximum number of votes this user can have"
+                           :db/valueType :db.type/long
+                           :db/cardinality :db.cardinality/one
+                           :db.install/_attribute :db.part/db}
+
+                          {:db/id (d/tempid :db.part/db)
+                           :db/ident :vote/user
+                           :db/valueType :db.type/ref
+                           :db/cardinality :db.cardinality/one
+                           :db/doc "The user casting the vote"
+                           :db.install/_attribute :db.part/db}
+
+                          {:db/id (d/tempid :db.part/db)
+                           :db/ident :vote/option
+                           :db/valueType :db.type/ref
+                           :db/cardinality :db.cardinality/one
+                           :db/doc "The option being voted for"
+                           :db.install/_attribute :db.part/db}])
+                       ;;}}
+                       ))
+
+               (slide :title "Some seed data"
+                      (highlight
+                       ;;{{
+                       (def seed-data
+                         [{:db/id (d/tempid :db.part/user -1)
+                           :option/title "The Fat Duck"
+                           :option/description "Heston Blumenthal's flagship. Might involve eating table service."}
+                          {:db/id (d/tempid :db.part/user -2)
+                           :option/title "Dans le Noir"
+                           :option/description "Dine in the complete darkness. Be accompanied to your seat by blind waiters."}
+                          {:db/id (d/tempid :db.part/user -3)
+                           :option/title "42 degree raw"
+                           :option/description "Featuring food not heated above 42 degrees"}
+                          {:db/id (d/tempid :db.part/user -4)
+                           :option/title "The restaurant at the end of the universe"
+                           :option/description "Meet and dine with a fascinating cross-section of the entire population of space and time."}
+                          {:db/id (d/tempid :db.part/user -5)
+                           :user/name "Arthur Dent"
+                           :user/max-votes 5}
+                          {:db/id (d/tempid :db.part/user -6)
+                           :user/name "Ford Prefect"
+                           :user/max-votes 5}
+                          {:db/id (d/tempid :db.part/user -7)
+                           :user/name "Zaphod Beeblebrox"
+                           :user/max-votes 5}
+                          {:db/id (d/tempid :db.part/user -8)
+                           :user/name "Marvin the Robot"
+                           :user/max-votes 0} ; What would be the point in voting anyway, here I am brain the size of a planet ...
+                          ])
+                       ;;}}
+                       ))
+
+               (slide :title "Drop and create a (test) database"
+                      (highlight
+                       ;;{{
+                       (let [uri "datomic:mem://cast"]
+                         (d/delete-database uri)
+                         (d/create-database uri)
+                         (def conn (d/connect uri))
+                         (d/transact conn schema)
+                         (d/transact conn seed-data))
+                       ;;}}
+                       ))
+
+               (slide :title "What entities do we want a user to see?"
+                      (highlight
+                       ;;{{
+                       (defn visible-entities
+                         "Return all the entities in the database that are relevant to this application"
+                         [db]
+                         (d/q '[:find ?e
+                                :in $ %
+                                :where (visible ?e)]
+                              db
+                              '[[(visible ?u)
+                                 [?u :user/name _]]
+                                [(visible ?v)
+                                 (?v :vote/option)]
+                                [(visible ?o)
+                                 (?o :option/title)]]))
+                       ;;}}
+                       ))
+
+               (slide :title "Loading the entities ready for serialization"
+                      (highlight
+                       ;;{{
+                       (defn load-entity
+                         "Loads an entity and its attributes. Keep in the db/id
+                         and replace references with ids (for use by DataScript)"
+                         [db entity]
+                         (as->
+                          (d/entity db entity) e
+                          (d/touch e)
+                          (into {:db/id (:db/id e)} e) ; needs to be a hash-map, not an entity map
+                          (fmap (fn [v]
+                                  (cond (set? v) (mapv #(if (instance? datomic.query.EntityMap %) (:db/id %) %) v)
+                                        (instance? datomic.query.EntityMap v) (:db/id v)
+                                        :else v)) e)))
+                       ;;}}
+                       )))
+               (chapter
+                (slide :title "Meanwhile, on the client")
+                (slide :title "Lay down the style (in advance)"
                       (highlight
 ;;{{
 body {
@@ -605,7 +628,6 @@ h1,h2,h3,h4,h5,p,div {
 
                       ;;}}
                       ))
-
               (slide :title "Displaying the options"
                      (highlight
                       ;;{{
@@ -705,10 +727,10 @@ h1,h2,h3,h4,h5,p,div {
 
                      (init!)
                      ;;}}
-                     )))
+                     ))))
              (chapter
               (slide :title "References/links"
                      (div (p :class "strong" "Hoplon")  "http://www.hoplon.io")
                      (div (p :class "strong" "Hoplon mailing list") "http://hoplon.discoursehosting.net")
-                     (div (p :class "strong" "DataScript") "http://www.github.com/tonsky/datascript"))))))
+                     (div (p :class "strong" "DataScript") "http://www.github.com/tonsky/datascript")))))
 

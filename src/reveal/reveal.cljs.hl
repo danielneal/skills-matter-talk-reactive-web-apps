@@ -1,5 +1,5 @@
 (ns reveal.elements
-    (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]))
 
 ;; -------------
 ;; Helpers
