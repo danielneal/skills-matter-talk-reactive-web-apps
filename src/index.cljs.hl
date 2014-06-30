@@ -11,7 +11,8 @@
 
 (defc= seconds (int (- remaining-time (* mins 60))))
 
-(defc= show-bruce (< seconds 59)) ;(and (#{30 20 15 10 5 4 3 2 1} mins) (< seconds 15))
+(defc= show-bruce (and (#{30 20 15 10 5 4 3 2 1} mins)
+                       (< seconds 15)))
 
 (js/setInterval #(swap! remaining-time dec) 1000)
 
