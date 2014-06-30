@@ -3,16 +3,17 @@
                 [tailrecursion.hoplon.svg :as svg])
       (:require-macros [reveal.macros :refer [with-counter]]))
 
-(defc remaining-time (* 60 40))
+(def talk-time 10)
+
+(defc remaining-time (* 60 talk-time))
 
 (defc= mins (int (/ remaining-time 60)))
 
 (defc= seconds (int (- remaining-time (* mins 60))))
 
-(defc= show-bruce (and (#{30 20 15 10 5 4 3 2 1} mins)
-                       (< seconds 15)))
+(defc= show-bruce (< seconds 59)) ;(and (#{30 20 15 10 5 4 3 2 1} mins) (< seconds 15))
 
-(js/setInterval #(swap! remaining-time dec) 10)
+(js/setInterval #(swap! remaining-time dec) 1000)
 
 (defmethod do! :animate
   [elem _ v]
@@ -54,6 +55,9 @@
                      (img :src "img/leiningen.jpeg")
                      (bullet "Wat, no Leiningen?"))
 
+              (slide :title
+                     (two-column-table (img :src "img/micha.png")
+                                       (img :src "img/alan.png")))
               (slide :title
                      (img :class "fullscreen" :src "img/shiny.jpg")))
 
@@ -237,7 +241,7 @@
                       (bullet
                        (highlight
                         ;;{{
-                        lein new hoplon-castra <name-of-project>
+                        lein new hoplon-castra demo
                         ;;}}
                         )))
 
@@ -247,6 +251,7 @@
                        [com.datomic/datomic-free "0.9.4766"]
                        [datascript "0.1.5"]
                        [org.clojure/algo.generic "0.1.0"]
+                       [lein-light-nrepl "0.0.18"]
                        [org.clojure/tools.nrepl "0.2.3"]
                        ;;}}
                        ))
@@ -256,9 +261,12 @@
                       (highlight
                        ;;{{
                        * Download Semantic UI from http://www.semantic-ui.com
-                       * Copy the contents of the "packaged" folder to the assets directory
-                       * Copy semantic.min.css to hl/semantic/semantic.min.inc.css
-                       * Copy semantic.min.js to hl/semantic/semantic.min.inc.js
+                       * Copy and rename (e.g.)
+                       cd ~/semantic/packaged
+                       cp -r . ~/development/demo/assets/
+                       mkdir ~/development/demo/src/hl/semantic
+                       cp css/semantic.min.css ~/development/demo/src/hl/semantic/semantic.min.inc.css
+                       cp javascript/semantic.min.js ~/development/demo/src/hl/semantic/semantic.min.inc.js
                        (This renaming instructs the Hoplon compiler to include the files)
                        ;;}}
                        ))
@@ -266,28 +274,34 @@
                (slide :title "Add a REPL and start up the auto compilation"
                       (highlight
                        ;;{{
+
+                       (require '[tailrecursion.hoplon.boot :refer :all]
+                                '[tailrecursion.castra.task :as c]
+                                '[lighttable.nrepl.handler :as light]
+                                '[clojure.tools.nrepl.server :as nrepl])
+
                        (deftask repl-light
                          "Launch nrepl in the project."
                          []
-                        (let [nrepl-server (atom nil)]
-                          (fn [continue]
-                            (fn [event]
-                              (swap! nrepl-server
-                                     #(or % (nrepl/start-server
-                                             :port 0
-                                             :handler (nrepl/default-handler #'light/lighttable-ops))))
-                              (println "nrepl running on " (:port @nrepl-server))
-                              (continue event)
-                              @(promise)))))
+                         (let [nrepl-server (atom nil)]
+                           (fn [continue]
+                             (fn [event]
+                               (swap! nrepl-server
+                                      #(or % (nrepl/start-server
+                                              :port 0
+                                              :handler (nrepl/default-handler #'light/lighttable-ops))))
+                               (println "nrepl running on " (:port @nrepl-server))
+                               (continue event)
+                               @(promise)))))
 
                       ; add (repl-light) to development task to enable LightTable REPL
                       ;;}}
                       )
                      (highlight
                       ;;{{
-                      cd <name-of-project>
+                      cd ~/development/demo
                       boot development
-                      open localhost:8000/index.html
+                      open "localhost:8000/index.html"
                       ;;}}
                       )
                       (p :class "strong" "Does it work yet?")))
@@ -302,7 +316,7 @@
                (slide :title "... as a datomic schema"
                       (highlight
                        ;;{{
-                       (ns cast.api
+                       (ns demo.api
                          (:require [tailrecursion.castra :refer [defrpc]]
                                    [datomic.api :as d]
                                    [clojure.algo.generic.functor :refer [fmap]]))
@@ -389,7 +403,7 @@
                (slide :title "Drop and create a (test) database"
                       (highlight
                        ;;{{
-                       (let [uri "datomic:mem://cast"]
+                       (let [uri "datomic:mem://demo"]
                          (d/delete-database uri)
                          (d/create-database uri)
                          (def conn (d/connect uri))
@@ -496,14 +510,14 @@ h1,h2,h3,h4,h5,p,div {
                        ;;{{
                        (page "index.html"
                              (:require [datascript :as d]
-                                       [cast.rpc :as rpc]))
+                                       [demo.rpc :as rpc]))
 
                        (html
                         (head
                          (link :rel "stylesheet" :type "text/css" :href "css/main.css"))
                         (body
                          (div :class "ui inverted fixed black main menu"
-                              (div :class "ui item" "CAST")
+                              (div :class "ui item" "DINNER TIME")
                               (div :class "right menu"
                                    (div :class "item"
                                         (text "10 votes left"))
@@ -553,10 +567,10 @@ h1,h2,h3,h4,h5,p,div {
                                    (div :class "ui bottom right attached black inverted label"
                                         (div :class "ui mini buttons"
                                              (count-button up-button)
-                                             (count-button down-button)
+                                             (count-button down-button)))
                                    (div :class "ui header" (text "~{title}"))
                                    (div :class "ui clearing divider")
-                                   (p (text "~{description}")))))))
+                                   (p (text "~{description}")))))
 
                        ; --------------------------------
 
@@ -566,7 +580,7 @@ h1,h2,h3,h4,h5,p,div {
                                     :description "A wonderful description"
                                     :votes 4
                                     :up-button {:colour "green"
-                                                :icon "minus"
+                                                :icon "plus"
                                                 :count-cell c1
                                                 :on-click #(swap! c1 inc)}
                                     :down-button {:colour "red"
@@ -583,7 +597,7 @@ h1,h2,h3,h4,h5,p,div {
                        (defrpc get-state
                          "End point to supply visible entities to client"
                          []
-                         (let [db (d/db conn system)]
+                         (let [db (d/db conn)]
                            {:entities (map (comp (partial load-entity db) first) (visible-entities db))}))
                        ;;}}
                        )
@@ -595,7 +609,7 @@ h1,h2,h3,h4,h5,p,div {
                        (defc error nil)
                        (defc loading [])
 
-                       (def get-state (mkremote 'cast.api/get-state state error loading))
+                       (def get-state (mkremote 'demo.api/get-state state error loading))
                        ;;}}
                        ))
 
@@ -605,7 +619,7 @@ h1,h2,h3,h4,h5,p,div {
                        (let [schema {:vote/user {:db/valueType :db.type/ref}
                                      :vote/option {:db/valueType :db.type/ref}}
                              entities (cell= (:entities rpc/state))]
-                         (def db (cell= (d/with (d/empty-db schema) (:db rpc/entities)))))
+                         (def db (cell= (d/with (d/empty-db schema) entities))))
                        ;;}}
                        ))
 
@@ -622,9 +636,14 @@ h1,h2,h3,h4,h5,p,div {
 
                       (defc= default-user (first users))
 
-                      (defc= user (cell= (or selected-user default-user)))
+                      (defc= user (or selected-user default-user))
 
                       ; Let's Update the View!
+                      (loop-tpl :bindings [u users]
+                                (div :class "item"
+                                     :on-click #(reset! selected-user @u)
+                                     (text "~(:user/name u)")))
+
 
                       ;;}}
                       ))
@@ -663,6 +682,20 @@ h1,h2,h3,h4,h5,p,div {
                        ;;}}
                        ))
 
+              (slide :title "Remaining vote count"
+                     (highlight
+                      ;;{{
+                      (defc= votes (ffirst (d/q '[:find (count ?v)
+                                                  :in $ ?u
+                                                  :where [?v :vote/user ?u]]
+                                                db (:db/id user))))
+
+                      (defc= remaining-votes (- (:user/max-votes user) votes))
+
+                      ; Let's Update the View!
+                      ;;}}
+                      ))
+
               (slide :title "Actions - voting"
                      (highlight
                       ;;{{
@@ -689,48 +722,27 @@ h1,h2,h3,h4,h5,p,div {
                      (p :class "strong" "\u21C5")
                      (highlight
                       ;;{{
-                      (def up-vote! (mkremote 'cast.api/up-vote! state error loading))
-                      (def down-vote! (mkremote 'cast.api/down-vote! state error loading))
+                      (def up-vote! (mkremote 'demo.api/up-vote! state error loading))
+                      (def down-vote! (mkremote 'demo.api/down-vote! state error loading))
+
+                      ; restart the server - endpoints have changed
+
                       ;;}}
                       ))
 
               (slide :title "Actions - voting"
                      (highlight
                       ;;{{
-                      :up-button {:count user-votes :on-click #(up-vote! @id (:db/id @user))}
-                      :down-button {:count nil :on-click #(down-vote! @id (:db/id @user))}
+                      ;up-button
+                      :on-click #(when (> @remaining-votes 0)
+                                   (rpc/up-vote! @id (:db/id @user)))
+                      ;down-button
+                      :on-click #(rpc/down-vote! @id (:db/id @user))
                       ;;}}
-                      ))
-
-              (slide :title "Remaining vote count and switch user"
-                     (highlight
-                      ;;{{
-                      (defc= votes (ffirst (d/q '[:find (count ?v)
-                                                  :in $ ?u
-                                                  :where [?v :vote/user ?u]])
-                                           db (:db/id user)))
-
-                      (defc= remaining-votes (- (:user/max-votes user) votes))
-
-                      ; Switch user
-                      :on-click #(reset! selected-user @u)
-
-                      ; Let's Update the View!
-                      ;;}}
-                      ))
-             (slide :title "Keeping state updated"
-                    (highlight
-                     ;;{{
-                     (defn init! []
-                       (rpc/get-state)
-                       (js/setInterval rpc/get-state 1000))
-
-                     (init!)
-                     ;;}}
-                     ))))
+                      )))
              (chapter
               (slide :title "References/links"
                      (div (p :class "strong" "Hoplon")  "http://www.hoplon.io")
                      (div (p :class "strong" "Hoplon mailing list") "http://hoplon.discoursehosting.net")
-                     (div (p :class "strong" "DataScript") "http://www.github.com/tonsky/datascript")))))
+                     (div (p :class "strong" "DataScript") "http://www.github.com/tonsky/datascript"))))))
 
