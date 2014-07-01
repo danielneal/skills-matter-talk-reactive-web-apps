@@ -3,7 +3,7 @@
                 [tailrecursion.hoplon.svg :as svg])
       (:require-macros [reveal.macros :refer [with-counter]]))
 
-(def talk-time 10)
+(def talk-time 40)
 
 (defc remaining-time (* 60 talk-time))
 
@@ -11,8 +11,8 @@
 
 (defc= seconds (int (- remaining-time (* mins 60))))
 
-(defc= show-bruce (and (#{30 20 15 10 5 4 3 2 1} mins)
-                       (< seconds 15)))
+(defc= show-bruce (and (#{30 20 15 10 9 8 7 6 5 4 3 2 1} mins)
+                       (< 2 seconds 20)))
 
 (js/setInterval #(swap! remaining-time dec) 1000)
 
@@ -45,7 +45,7 @@
 
                      (div :class "verse"
                           (p "You can try Quiescent, Brent")
-                          (p "Just install Caribou, Lou")
+                          (p "Or install Caribou, Lou")
                           (p "There must be"))
                      (p :class "strong" "50 ways to write a web app in Clojure")
                      (p :class "small" "-- (with apologies to) Paul Simon"))
@@ -159,7 +159,7 @@
                                         (<= 0 h* 1) [c x 0]
                                         :else [0 0 0]))
                            m (cell= (- l (/ c 2)))
-                           rgb (cell= [(+ m (rgb* 0)) (+ m (rgb* 1)) (+ m (rgb* 2))])
+                           rgb (cell= (mapv (partial + m) rgb*))
                            hex (cell= (apply str (map #(.slice (+ "0" (.toString (int (* 255 %)) 16)) -2) rgb)))]
                        (div :class "hsl demo"
                             (input :type "range" :min 0 :max 360 :step 1 :id "h" :value @h
@@ -187,7 +187,7 @@
                                               (<= 0 h* 1) [c x 0]
                                               :else [0 0 0]))
                             m (cell= (- l (/ c 2)))
-                            rgb (cell= [(+ m (rgb* 0)) (+ m (rgb* 1)) (+ m (rgb* 2))])
+                            rgb (cell= (mapv (partial + m) rgb*))
                             hex (cell= (apply str (map #(.slice (+ "0" (.toString (int (* 255 %)) 16)) -2) rgb)))]
                         (div
                          (input :type "range" :min 0 :max 360 :step 1 :id "h" :value @h
@@ -201,21 +201,21 @@
                       )))
              (chapter
               (slide :title "Filter a list"
-                     (let [x (cell ["Pinkie Pie" "Rainbow Dash" "Twilight Sparkle" "Fluttershy" "Applejack" "Rarity"])
-                           i (cell "")
-                           filtered (cell= (filter #(re-find (js/RegExp. i "i") %) x))]
+                     (let [ponies (cell ["Pinkie Pie" "Rainbow Dash" "Twilight Sparkle" "Fluttershy" "Applejack" "Rarity"])
+                           search (cell "")
+                           filtered (cell= (filter #(re-find (js/RegExp. search "i") %) ponies))]
                        (div :class "filter demo"
-                            (input :type "text" :id "i" :on-input #(reset! i (val-id "i")))
+                            (input :type "text" :id "search" :on-input #(reset! search (val-id "search")))
                             (loop-tpl :bindings [item filtered]
                                       (p :class "item" (text "~{item}"))))))
               (slide
                (highlight
                 ;;{{
-                (let [x (cell ["Pinkie Pie" ... "Rarity"])
-                      i (cell "")
-                      filtered (cell= (filter #(re-find (js/RegExp. i "i") %) x))]
+                (let [ponies (cell ["Pinkie Pie" ... "Rarity"])
+                      search (cell "")
+                      filtered (cell= (filter #(re-find (js/RegExp. search "i") %) ponies))]
                   (div
-                   (input :type "text" :id "i" :on-input #(reset! i (val-id "i")))
+                   (input :type "text" :id "search" :on-input #(reset! search (val-id "search")))
                    (loop-tpl :bindings [item filtered]
                              (p (text "~{item}")))))
                 ;;}}
@@ -262,7 +262,7 @@
                       (highlight
                        ;;{{
                        * Download Semantic UI from http://www.semantic-ui.com
-                       * Copy and rename (e.g.)
+                       * Copy and rename .js to .inc.js and .css to .inc.css
                        cd ~/semantic/packaged
                        cp -r . ~/development/demo/assets/
                        mkdir ~/development/demo/src/hl/semantic
@@ -275,7 +275,6 @@
                (slide :title "Add a REPL and start up the auto compilation"
                       (highlight
                        ;;{{
-
                        (require '[tailrecursion.hoplon.boot :refer :all]
                                 '[tailrecursion.castra.task :as c]
                                 '[lighttable.nrepl.handler :as light]
@@ -308,6 +307,10 @@
                       (p :class "strong" "Does it work yet?")))
               (chapter
                (slide :title "Data and architecture")
+
+               (slide :title "DataScript"
+                      (img :src "img/tonsky.png"))
+
                (slide :title "Server \u21C6 Client relationship"
                       (img :src "img/architecture.png"))
 

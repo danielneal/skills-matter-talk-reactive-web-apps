@@ -1,0 +1,50 @@
+body {
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  margin: 0px;
+  padding: 0px;
+  color: #555555;
+  min-width: 320px;
+}
+
+h1,h2,h3,h4,h5,p,div {
+  font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+.container {
+  position:relative;
+  top:4rem;
+  margin-left:5%;
+  margin-right:5%;
+}
+
+.login.form.ui.segment {
+  margin:auto;
+  max-width:30rem;
+}
+
+.ui.mini.buttons .button {
+  width:3rem;
+}
+
+.ui.mini.buttons span {
+  margin-left:0.2rem;
+}
+
+.candidate .votes {
+  width:6rem;
+  min-width:6rem;
+  display:inline-block;
+  float:left;
+}
+
+.candidate .votes span {
+  display:block;
+  font-size:3em;
+  font-weight:bold;
+  text-align:center;
+}
+
+.candidate .details {
+  overflow:hidden;
+  padding-left:2rem;
+}
